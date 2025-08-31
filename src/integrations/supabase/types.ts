@@ -21,6 +21,7 @@ export type Database = {
           farmer_id: string | null
           id: string
           status: string | null
+          user_id: string | null
         }
         Insert: {
           created_at?: string | null
@@ -28,6 +29,7 @@ export type Database = {
           farmer_id?: string | null
           id?: string
           status?: string | null
+          user_id?: string | null
         }
         Update: {
           created_at?: string | null
@@ -35,6 +37,7 @@ export type Database = {
           farmer_id?: string | null
           id?: string
           status?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -55,6 +58,7 @@ export type Database = {
           irrigation_method: string | null
           seed_type: string | null
           soil_health: string | null
+          user_id: string | null
         }
         Insert: {
           created_at?: string | null
@@ -64,6 +68,7 @@ export type Database = {
           irrigation_method?: string | null
           seed_type?: string | null
           soil_health?: string | null
+          user_id?: string | null
         }
         Update: {
           created_at?: string | null
@@ -73,6 +78,7 @@ export type Database = {
           irrigation_method?: string | null
           seed_type?: string | null
           soil_health?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
