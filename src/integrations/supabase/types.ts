@@ -14,7 +14,136 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      carbon_credits: {
+        Row: {
+          created_at: string | null
+          credit_value: number | null
+          farmer_id: string | null
+          id: string
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          credit_value?: number | null
+          farmer_id?: string | null
+          id?: string
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          credit_value?: number | null
+          farmer_id?: string | null
+          id?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "carbon_credits_farmer_id_fkey"
+            columns: ["farmer_id"]
+            isOneToOne: false
+            referencedRelation: "farmers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      farm_inputs: {
+        Row: {
+          created_at: string | null
+          farmer_id: string | null
+          fertilizer_use: string | null
+          id: string
+          irrigation_method: string | null
+          seed_type: string | null
+          soil_health: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          farmer_id?: string | null
+          fertilizer_use?: string | null
+          id?: string
+          irrigation_method?: string | null
+          seed_type?: string | null
+          soil_health?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          farmer_id?: string | null
+          fertilizer_use?: string | null
+          id?: string
+          irrigation_method?: string | null
+          seed_type?: string | null
+          soil_health?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "farm_inputs_farmer_id_fkey"
+            columns: ["farmer_id"]
+            isOneToOne: false
+            referencedRelation: "farmers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      farmers: {
+        Row: {
+          contact: string | null
+          created_at: string | null
+          crop_type: string | null
+          id: string
+          land_area: number | null
+          location: string | null
+          name: string
+          user_id: string | null
+        }
+        Insert: {
+          contact?: string | null
+          created_at?: string | null
+          crop_type?: string | null
+          id?: string
+          land_area?: number | null
+          location?: string | null
+          name: string
+          user_id?: string | null
+        }
+        Update: {
+          contact?: string | null
+          created_at?: string | null
+          crop_type?: string | null
+          id?: string
+          land_area?: number | null
+          location?: string | null
+          name?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
