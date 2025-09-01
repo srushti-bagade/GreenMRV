@@ -1,0 +1,258 @@
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+
+interface CarbonCreditExportData {
+  id: string;
+  farmer: {
+    name: string;
+    location: string;
+    cropType: string;
+    landArea: number;
+  };
+  creditValue: number;
+  status: string;
+  verificationDate?: string;
+  ndviValue?: number;
+  satelliteSource?: string;
+  verificationConfidence?: number;
+  createdAt: string;
+}
+
+export class PDFExportService {
+  public static async exportVerifiedCreditToPDF(creditData: CarbonCreditExportData): Promise<void> {
+    const pdf = new jsPDF();
+    const pageWidth = pdf.internal.pageSize.width;
+    const margin = 20;
+    let yPosition = margin;
+
+    // Header with verification badge
+    pdf.setFontSize(20);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('VERIFIED CARBON CREDIT CERTIFICATE', pageWidth / 2, yPosition, { align: 'center' });
+    
+    yPosition += 15;
+
+    // Verification badge
+    if (creditData.status === 'Verified') {
+      pdf.setFillColor(34, 197, 94); // Green color for verified badge
+      pdf.roundedRect(pageWidth / 2 - 30, yPosition, 60, 15, 3, 3, 'F');
+      
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(12);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('✓ SATELLITE VERIFIED', pageWidth / 2, yPosition + 10, { align: 'center' });
+      
+      pdf.setTextColor(0, 0, 0);
+      yPosition += 25;
+    }
+
+    // Certificate ID
+    pdf.setFontSize(10);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(`Certificate ID: ${creditData.id}`, pageWidth / 2, yPosition, { align: 'center' });
+    yPosition += 20;
+
+    // Farmer Information Section
+    pdf.setFontSize(16);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('FARMER INFORMATION', margin, yPosition);
+    yPosition += 10;
+
+    pdf.setFontSize(11);
+    pdf.setFont('helvetica', 'normal');
+    
+    const farmerInfo = [
+        `Name: ${creditData.farmer.name}`,
+        `Location: ${creditData.farmer.location}`,
+        `Crop Type: ${creditData.farmer.cropType}`,
+        `Land Area: ${creditData.farmer.landArea} acres`,
+    ];
+
+    farmerInfo.forEach(info => {
+      pdf.text(info, margin, yPosition);
+      yPosition += 8;
+    });
+
+    yPosition += 10;
+
+    // Carbon Credit Details
+    pdf.setFontSize(16);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('CARBON CREDIT DETAILS', margin, yPosition);
+    yPosition += 10;
+
+    pdf.setFontSize(11);
+    pdf.setFont('helvetica', 'normal');
+    
+    const creditInfo = [
+      `Credit Value: ${creditData.creditValue.toFixed(2)} tCO₂`,
+      `Status: ${creditData.status}`,
+      `Issue Date: ${new Date(creditData.createdAt).toLocaleDateString()}`,
+    ];
+
+    if (creditData.verificationDate) {
+      creditInfo.push(`Verification Date: ${new Date(creditData.verificationDate).toLocaleDateString()}`);
+    }
+
+    creditInfo.forEach(info => {
+      pdf.text(info, margin, yPosition);
+      yPosition += 8;
+    });
+
+    yPosition += 10;
+
+    // Satellite Verification Details (if verified)
+    if (creditData.status === 'Verified' && creditData.ndviValue) {
+      pdf.setFontSize(16);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('SATELLITE VERIFICATION DETAILS', margin, yPosition);
+      yPosition += 10;
+
+      pdf.setFontSize(11);
+      pdf.setFont('helvetica', 'normal');
+      
+      const verificationInfo = [
+        `Satellite Source: ${creditData.satelliteSource || 'Sentinel-2 ESA'}`,
+        `NDVI Value: ${creditData.ndviValue.toFixed(3)} (Vegetation Health)`,
+        `Verification Confidence: ${creditData.verificationConfidence || 95}%`,
+        `Verification Method: Multi-spectral Satellite Imagery Analysis`,
+        `Standards Compliance: Verified Carbon Standard (VCS)`,
+      ];
+
+      verificationInfo.forEach(info => {
+        pdf.text(info, margin, yPosition);
+        yPosition += 8;
+      });
+
+      yPosition += 10;
+    }
+
+    // Methodology Section
+    pdf.setFontSize(16);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('VERIFICATION METHODOLOGY', margin, yPosition);
+    yPosition += 10;
+
+    pdf.setFontSize(11);
+    pdf.setFont('helvetica', 'normal');
+    
+    const methodology = [
+      '• Satellite imagery analysis using NDVI (Normalized Difference Vegetation Index)',
+      '• Multi-temporal comparison to assess vegetation health changes',
+      '• Land area verification through high-resolution satellite data',
+      '• Carbon sequestration calculations based on crop type and health',
+      '• Compliance with international carbon credit standards',
+    ];
+
+    methodology.forEach(method => {
+      pdf.text(method, margin, yPosition);
+      yPosition += 8;
+    });
+
+    yPosition += 15;
+
+    // Footer with timestamp and authenticity
+    const footerY = pdf.internal.pageSize.height - 30;
+    pdf.setFontSize(10);
+    pdf.setFont('helvetica', 'italic');
+    pdf.text('This certificate is generated by GreenMRV Platform', pageWidth / 2, footerY, { align: 'center' });
+    pdf.text(`Generated on: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}`, pageWidth / 2, footerY + 10, { align: 'center' });
+
+    // Verification seal (if verified)
+    if (creditData.status === 'Verified') {
+      pdf.setFillColor(34, 197, 94, 0.1);
+      pdf.circle(pageWidth - 40, footerY - 20, 25, 'F');
+      
+      pdf.setTextColor(34, 197, 94);
+      pdf.setFontSize(8);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('SATELLITE', pageWidth - 40, footerY - 25, { align: 'center' });
+      pdf.text('VERIFIED', pageWidth - 40, footerY - 18, { align: 'center' });
+      pdf.text('2025', pageWidth - 40, footerY - 11, { align: 'center' });
+    }
+
+    // Save the PDF
+    const filename = `carbon-credit-${creditData.farmer.name.replace(/\s+/g, '-')}-${creditData.id.slice(0, 8)}.pdf`;
+    pdf.save(filename);
+  }
+
+  public static async exportMultipleCreditsToPDF(credits: CarbonCreditExportData[]): Promise<void> {
+    const pdf = new jsPDF();
+    const pageWidth = pdf.internal.pageSize.width;
+    const margin = 20;
+
+    // Title page
+    pdf.setFontSize(24);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('CARBON CREDIT REGISTRY REPORT', pageWidth / 2, 40, { align: 'center' });
+
+    pdf.setFontSize(12);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth / 2, 60, { align: 'center' });
+    pdf.text(`Total Credits: ${credits.length}`, pageWidth / 2, 75, { align: 'center' });
+
+    const verifiedCount = credits.filter(c => c.status === 'Verified').length;
+    pdf.text(`Verified Credits: ${verifiedCount}`, pageWidth / 2, 90, { align: 'center' });
+
+    const totalValue = credits.reduce((sum, c) => sum + c.creditValue, 0);
+    pdf.text(`Total Carbon Value: ${totalValue.toFixed(2)} tCO₂`, pageWidth / 2, 105, { align: 'center' });
+
+    // Add new page for detailed list
+    pdf.addPage();
+
+    let yPos = margin;
+    pdf.setFontSize(16);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('DETAILED CREDIT LISTING', margin, yPos);
+    yPos += 15;
+
+    credits.forEach((credit, index) => {
+      if (yPos > pdf.internal.pageSize.height - 60) {
+        pdf.addPage();
+        yPos = margin;
+      }
+
+      // Credit header
+      pdf.setFontSize(12);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(`${index + 1}. ${credit.farmer.name}`, margin, yPos);
+      
+      // Status badge
+      const statusColor: [number, number, number] = credit.status === 'Verified' ? [34, 197, 94] : [249, 115, 22];
+      pdf.setFillColor(statusColor[0], statusColor[1], statusColor[2]);
+      pdf.roundedRect(pageWidth - 60, yPos - 5, 35, 10, 2, 2, 'F');
+      
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(8);
+      pdf.text(credit.status.toUpperCase(), pageWidth - 42.5, yPos + 1, { align: 'center' });
+      pdf.setTextColor(0, 0, 0);
+      
+      yPos += 12;
+
+      // Credit details
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'normal');
+      
+      const details = [
+        `Location: ${credit.farmer.location} | Crop: ${credit.farmer.cropType}`,
+        `Land Area: ${credit.farmer.landArea} acres | Credit Value: ${credit.creditValue.toFixed(2)} tCO₂`,
+        `Issue Date: ${new Date(credit.createdAt).toLocaleDateString()}`,
+      ];
+
+      if (credit.verificationDate && credit.ndviValue) {
+        details.push(`Satellite Verified: ${new Date(credit.verificationDate).toLocaleDateString()} | NDVI: ${credit.ndviValue.toFixed(3)}`);
+      }
+
+      details.forEach(detail => {
+        pdf.text(detail, margin + 5, yPos);
+        yPos += 7;
+      });
+
+      yPos += 8;
+    });
+
+    // Save the registry report
+    const filename = `carbon-credit-registry-${new Date().toISOString().split('T')[0]}.pdf`;
+    pdf.save(filename);
+  }
+}

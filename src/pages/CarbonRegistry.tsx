@@ -1,33 +1,52 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { FileText, Search, Filter } from "lucide-react";
+import { FileText, Search, Filter, Satellite, Download, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { SatelliteVerificationDialog } from "@/components/SatelliteVerificationDialog";
+import { PDFExportService } from "@/services/pdfExport";
+import { useToast } from "@/hooks/use-toast";
 
 interface CarbonCreditWithFarmer {
   id: string;
   credit_value: number;
   status: string;
   created_at: string;
+  verification_date?: string;
+  ndvi_value?: number;
+  satellite_land_area?: number;
+  verification_source?: string;
+  verification_confidence?: number;
   farmer: {
     name: string;
     location: string;
     crop_type: string;
     land_area: number;
   };
+  farm_inputs?: {
+    fertilizer_use: string;
+    irrigation_method: string;
+    seed_type: string;
+    soil_health: string;
+  };
 }
 
 export default function CarbonRegistry() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [credits, setCredits] = useState<CarbonCreditWithFarmer[]>([]);
   const [filteredCredits, setFilteredCredits] = useState<CarbonCreditWithFarmer[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedCredit, setSelectedCredit] = useState<CarbonCreditWithFarmer | null>(null);
+  const [verificationDialog, setVerificationDialog] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     const fetchCredits = async () => {
@@ -44,6 +63,12 @@ export default function CarbonRegistry() {
               crop_type,
               land_area,
               user_id
+            ),
+            farm_inputs (
+              fertilizer_use,
+              irrigation_method,
+              seed_type,
+              soil_health
             )
           `)
           .eq("farmers.user_id", user.id)
@@ -56,12 +81,18 @@ export default function CarbonRegistry() {
           credit_value: item.credit_value,
           status: item.status,
           created_at: item.created_at,
+          verification_date: item.verification_date,
+          ndvi_value: item.ndvi_value,
+          satellite_land_area: item.satellite_land_area,
+          verification_source: item.verification_source,
+          verification_confidence: item.verification_confidence,
           farmer: {
             name: item.farmers.name,
             location: item.farmers.location,
             crop_type: item.farmers.crop_type,
             land_area: item.farmers.land_area
-          }
+          },
+          farm_inputs: Array.isArray(item.farm_inputs) && item.farm_inputs.length > 0 ? item.farm_inputs[0] : undefined
         }));
 
         setCredits(formattedData);
@@ -98,7 +129,7 @@ export default function CarbonRegistry() {
     setFilteredCredits(filtered);
   }, [searchTerm, statusFilter, credits]);
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string, hasVerification?: boolean) => {
     const statusMap = {
       Pending: { variant: "secondary" as const, color: "bg-amber-100 text-amber-800" },
       Verified: { variant: "default" as const, color: "bg-green-100 text-green-800" },
@@ -108,10 +139,116 @@ export default function CarbonRegistry() {
     const config = statusMap[status as keyof typeof statusMap] || statusMap.Pending;
     
     return (
-      <Badge variant={config.variant} className={config.color}>
-        {status}
-      </Badge>
+      <div className="flex items-center gap-2">
+        <Badge variant={config.variant} className={config.color}>
+          {status}
+        </Badge>
+        {hasVerification && status === 'Verified' && (
+          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+            <Satellite className="h-3 w-3 mr-1" />
+            Satellite
+          </Badge>
+        )}
+      </div>
     );
+  };
+
+  const handleVerificationComplete = () => {
+    setVerificationDialog(false);
+    setSelectedCredit(null);
+    fetchCredits(); // Refresh the data
+  };
+
+  const handleExportAll = async () => {
+    setIsExporting(true);
+    
+    try {
+      const exportData = filteredCredits.map(credit => ({
+        id: credit.id,
+        farmer: {
+          name: credit.farmer.name,
+          location: credit.farmer.location,
+          cropType: credit.farmer.crop_type,
+          landArea: credit.farmer.land_area,
+        },
+        creditValue: credit.credit_value,
+        status: credit.status,
+        verificationDate: credit.verification_date,
+        ndviValue: credit.ndvi_value,
+        satelliteSource: credit.verification_source,
+        verificationConfidence: credit.verification_confidence,
+        createdAt: credit.created_at,
+      }));
+
+      await PDFExportService.exportMultipleCreditsToPDF(exportData);
+      
+      toast({
+        title: "Registry Exported Successfully",
+        description: `Exported ${filteredCredits.length} carbon credit records to PDF`,
+      });
+    } catch (error) {
+      console.error('Export error:', error);
+      toast({
+        title: "Export Failed",
+        description: "Unable to export registry. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const fetchCredits = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("carbon_credits")
+        .select(`
+          *,
+          farmers!inner (
+            name,
+            location,
+            crop_type,
+            land_area,
+            user_id
+          ),
+          farm_inputs (
+            fertilizer_use,
+            irrigation_method,
+            seed_type,
+            soil_health
+          )
+        `)
+        .eq("farmers.user_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      const formattedData: CarbonCreditWithFarmer[] = data.map(item => ({
+        id: item.id,
+        credit_value: item.credit_value,
+        status: item.status,
+        created_at: item.created_at,
+        verification_date: item.verification_date,
+        ndvi_value: item.ndvi_value,
+        satellite_land_area: item.satellite_land_area,
+        verification_source: item.verification_source,
+        verification_confidence: item.verification_confidence,
+        farmer: {
+          name: item.farmers.name,
+          location: item.farmers.location,
+          crop_type: item.farmers.crop_type,
+          land_area: item.farmers.land_area
+        },
+        farm_inputs: Array.isArray(item.farm_inputs) && item.farm_inputs.length > 0 ? item.farm_inputs[0] : undefined
+      }));
+
+      setCredits(formattedData);
+      setFilteredCredits(formattedData);
+    } catch (error) {
+      console.error("Error fetching carbon credits:", error);
+    }
   };
 
   const totalCredits = filteredCredits.reduce((sum, credit) => sum + (credit.credit_value || 0), 0);
@@ -127,9 +264,29 @@ export default function CarbonRegistry() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center gap-2 mb-6">
-        <FileText className="h-6 w-6 text-primary" />
-        <h1 className="text-3xl font-bold">Carbon Credit Registry</h1>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <FileText className="h-6 w-6 text-primary" />
+          <h1 className="text-3xl font-bold">Carbon Credit Registry</h1>
+        </div>
+        
+        <Button
+          onClick={handleExportAll}
+          disabled={isExporting || filteredCredits.length === 0}
+          className="flex items-center gap-2"
+        >
+          {isExporting ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              Exporting...
+            </>
+          ) : (
+            <>
+              <Download className="h-4 w-4" />
+              Export Registry PDF
+            </>
+          )}
+        </Button>
       </div>
 
       {/* Summary Cards */}
@@ -221,7 +378,9 @@ export default function CarbonRegistry() {
                     <TableHead>Land Area</TableHead>
                     <TableHead>Credit Value</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead>Verification</TableHead>
                     <TableHead>Date</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -235,10 +394,46 @@ export default function CarbonRegistry() {
                         {credit.credit_value?.toFixed(2) || "0.00"}
                       </TableCell>
                       <TableCell>
-                        {getStatusBadge(credit.status)}
+                        {getStatusBadge(credit.status, !!credit.verification_date)}
+                      </TableCell>
+                      <TableCell>
+                        {credit.verification_date && credit.ndvi_value ? (
+                          <div className="text-xs">
+                            <p className="font-mono">NDVI: {credit.ndvi_value.toFixed(3)}</p>
+                            <p className="text-muted-foreground">{credit.verification_source}</p>
+                            <p className="text-muted-foreground">{credit.verification_confidence}% confidence</p>
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">Not verified</span>
+                        )}
                       </TableCell>
                       <TableCell>
                         {new Date(credit.created_at).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedCredit(credit);
+                              setVerificationDialog(true);
+                            }}
+                            className="flex items-center gap-1"
+                          >
+                            {credit.verification_date ? (
+                              <>
+                                <Eye className="h-3 w-3" />
+                                View
+                              </>
+                            ) : (
+                              <>
+                                <Satellite className="h-3 w-3" />
+                                Verify
+                              </>
+                            )}
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -259,6 +454,28 @@ export default function CarbonRegistry() {
           )}
         </CardContent>
       </Card>
+
+      {/* Satellite Verification Dialog */}
+      {selectedCredit && (
+        <SatelliteVerificationDialog
+          open={verificationDialog}
+          onOpenChange={setVerificationDialog}
+          creditData={{
+            id: selectedCredit.id,
+            farmer: {
+              name: selectedCredit.farmer.name,
+              location: selectedCredit.farmer.location,
+              cropType: selectedCredit.farmer.crop_type,
+              landArea: selectedCredit.farmer.land_area,
+            },
+            creditValue: selectedCredit.credit_value,
+            status: selectedCredit.status,
+            createdAt: selectedCredit.created_at,
+            farmInputs: selectedCredit.farm_inputs
+          }}
+          onVerificationComplete={handleVerificationComplete}
+        />
+      )}
     </div>
   );
 }

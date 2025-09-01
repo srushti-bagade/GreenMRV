@@ -20,24 +20,42 @@ export type Database = {
           credit_value: number | null
           farmer_id: string | null
           id: string
+          ndvi_value: number | null
+          satellite_image_url: string | null
+          satellite_land_area: number | null
           status: string | null
           user_id: string | null
+          verification_confidence: number | null
+          verification_date: string | null
+          verification_source: string | null
         }
         Insert: {
           created_at?: string | null
           credit_value?: number | null
           farmer_id?: string | null
           id?: string
+          ndvi_value?: number | null
+          satellite_image_url?: string | null
+          satellite_land_area?: number | null
           status?: string | null
           user_id?: string | null
+          verification_confidence?: number | null
+          verification_date?: string | null
+          verification_source?: string | null
         }
         Update: {
           created_at?: string | null
           credit_value?: number | null
           farmer_id?: string | null
           id?: string
+          ndvi_value?: number | null
+          satellite_image_url?: string | null
+          satellite_land_area?: number | null
           status?: string | null
           user_id?: string | null
+          verification_confidence?: number | null
+          verification_date?: string | null
+          verification_source?: string | null
         }
         Relationships: [
           {
@@ -149,6 +167,65 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      satellite_verifications: {
+        Row: {
+          carbon_credit_id: string
+          carbon_sequestration_rate: number | null
+          cloud_coverage_percent: number | null
+          created_at: string
+          id: string
+          image_resolution_meters: number | null
+          land_coverage_analysis: Json | null
+          ndvi_change: number | null
+          ndvi_value: number
+          quality_flags: Json | null
+          satellite_source: string
+          vegetation_health_score: number | null
+          verification_algorithm: string | null
+          verification_date: string
+        }
+        Insert: {
+          carbon_credit_id: string
+          carbon_sequestration_rate?: number | null
+          cloud_coverage_percent?: number | null
+          created_at?: string
+          id?: string
+          image_resolution_meters?: number | null
+          land_coverage_analysis?: Json | null
+          ndvi_change?: number | null
+          ndvi_value: number
+          quality_flags?: Json | null
+          satellite_source: string
+          vegetation_health_score?: number | null
+          verification_algorithm?: string | null
+          verification_date?: string
+        }
+        Update: {
+          carbon_credit_id?: string
+          carbon_sequestration_rate?: number | null
+          cloud_coverage_percent?: number | null
+          created_at?: string
+          id?: string
+          image_resolution_meters?: number | null
+          land_coverage_analysis?: Json | null
+          ndvi_change?: number | null
+          ndvi_value?: number
+          quality_flags?: Json | null
+          satellite_source?: string
+          vegetation_health_score?: number | null
+          verification_algorithm?: string | null
+          verification_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "satellite_verifications_carbon_credit_id_fkey"
+            columns: ["carbon_credit_id"]
+            isOneToOne: false
+            referencedRelation: "carbon_credits"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
