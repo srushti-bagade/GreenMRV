@@ -53,7 +53,8 @@ export default function CarbonRegistry() {
       if (!user) return;
 
       try {
-        const { data, error } = await supabase
+        // First get carbon credits with farmers
+        const { data: creditsData, error: creditsError } = await supabase
           .from("carbon_credits")
           .select(`
             *,
@@ -63,37 +64,50 @@ export default function CarbonRegistry() {
               crop_type,
               land_area,
               user_id
-            ),
-            farm_inputs (
-              fertilizer_use,
-              irrigation_method,
-              seed_type,
-              soil_health
             )
           `)
           .eq("farmers.user_id", user.id)
           .order("created_at", { ascending: false });
 
-        if (error) throw error;
+        if (creditsError) throw creditsError;
 
-        const formattedData: CarbonCreditWithFarmer[] = data.map(item => ({
-          id: item.id,
-          credit_value: item.credit_value,
-          status: item.status,
-          created_at: item.created_at,
-          verification_date: item.verification_date,
-          ndvi_value: item.ndvi_value,
-          satellite_land_area: item.satellite_land_area,
-          verification_source: item.verification_source,
-          verification_confidence: item.verification_confidence,
-          farmer: {
-            name: item.farmers.name,
-            location: item.farmers.location,
-            crop_type: item.farmers.crop_type,
-            land_area: item.farmers.land_area
-          },
-          farm_inputs: Array.isArray(item.farm_inputs) && item.farm_inputs.length > 0 ? item.farm_inputs[0] : undefined
-        }));
+        // Then get farm inputs separately
+        const farmerIds = creditsData?.map(item => item.farmer_id).filter(Boolean) || [];
+        let farmInputsData: any[] = [];
+        
+        if (farmerIds.length > 0) {
+          const { data: inputsData, error: inputsError } = await supabase
+            .from("farm_inputs")
+            .select("*")
+            .in("farmer_id", farmerIds);
+          
+          if (!inputsError) {
+            farmInputsData = inputsData || [];
+          }
+        }
+
+        const formattedData: CarbonCreditWithFarmer[] = creditsData?.map(item => {
+          const farmInput = farmInputsData.find(input => input.farmer_id === item.farmer_id);
+          
+          return {
+            id: item.id,
+            credit_value: item.credit_value,
+            status: item.status,
+            created_at: item.created_at,
+            verification_date: item.verification_date,
+            ndvi_value: item.ndvi_value,
+            satellite_land_area: item.satellite_land_area,
+            verification_source: item.verification_source,
+            verification_confidence: item.verification_confidence,
+            farmer: {
+              name: item.farmers.name,
+              location: item.farmers.location,
+              crop_type: item.farmers.crop_type,
+              land_area: item.farmers.land_area
+            },
+            farm_inputs: farmInput
+          };
+        }) || [];
 
         setCredits(formattedData);
         setFilteredCredits(formattedData);
@@ -202,7 +216,8 @@ export default function CarbonRegistry() {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
+      // First get carbon credits with farmers
+      const { data: creditsData, error: creditsError } = await supabase
         .from("carbon_credits")
         .select(`
           *,
@@ -212,37 +227,50 @@ export default function CarbonRegistry() {
             crop_type,
             land_area,
             user_id
-          ),
-          farm_inputs (
-            fertilizer_use,
-            irrigation_method,
-            seed_type,
-            soil_health
           )
         `)
         .eq("farmers.user_id", user.id)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (creditsError) throw creditsError;
 
-      const formattedData: CarbonCreditWithFarmer[] = data.map(item => ({
-        id: item.id,
-        credit_value: item.credit_value,
-        status: item.status,
-        created_at: item.created_at,
-        verification_date: item.verification_date,
-        ndvi_value: item.ndvi_value,
-        satellite_land_area: item.satellite_land_area,
-        verification_source: item.verification_source,
-        verification_confidence: item.verification_confidence,
-        farmer: {
-          name: item.farmers.name,
-          location: item.farmers.location,
-          crop_type: item.farmers.crop_type,
-          land_area: item.farmers.land_area
-        },
-        farm_inputs: Array.isArray(item.farm_inputs) && item.farm_inputs.length > 0 ? item.farm_inputs[0] : undefined
-      }));
+      // Then get farm inputs separately
+      const farmerIds = creditsData?.map(item => item.farmer_id).filter(Boolean) || [];
+      let farmInputsData: any[] = [];
+      
+      if (farmerIds.length > 0) {
+        const { data: inputsData, error: inputsError } = await supabase
+          .from("farm_inputs")
+          .select("*")
+          .in("farmer_id", farmerIds);
+        
+        if (!inputsError) {
+          farmInputsData = inputsData || [];
+        }
+      }
+
+      const formattedData: CarbonCreditWithFarmer[] = creditsData?.map(item => {
+        const farmInput = farmInputsData.find(input => input.farmer_id === item.farmer_id);
+        
+        return {
+          id: item.id,
+          credit_value: item.credit_value,
+          status: item.status,
+          created_at: item.created_at,
+          verification_date: item.verification_date,
+          ndvi_value: item.ndvi_value,
+          satellite_land_area: item.satellite_land_area,
+          verification_source: item.verification_source,
+          verification_confidence: item.verification_confidence,
+          farmer: {
+            name: item.farmers.name,
+            location: item.farmers.location,
+            crop_type: item.farmers.crop_type,
+            land_area: item.farmers.land_area
+          },
+          farm_inputs: farmInput
+        };
+      }) || [];
 
       setCredits(formattedData);
       setFilteredCredits(formattedData);
