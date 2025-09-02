@@ -102,7 +102,13 @@ export default function Dashboard() {
     <div className="p-6 space-y-6">
       <div className="flex items-center gap-2 mb-6">
         <TrendingUp className="h-6 w-6 text-primary" />
-        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <div>
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <p className="text-muted-foreground">Monitor your carbon farming impact</p>
+          <p className="text-sm mt-2 text-primary">
+            💡 Visit <strong>Carbon Registry</strong> in the sidebar to verify credits with satellite data and export PDFs
+          </p>
+        </div>
       </div>
 
       {/* Stats Cards */}
