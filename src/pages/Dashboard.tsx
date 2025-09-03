@@ -78,6 +78,27 @@ export default function Dashboard() {
     };
 
     fetchData();
+
+    // Set up real-time subscription for carbon credits updates
+    const channel = supabase
+      .channel('dashboard-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'carbon_credits'
+        },
+        () => {
+          // Refresh data when carbon credits are updated
+          fetchData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   const totalCredits = credits.reduce((sum, credit) => sum + (credit.credit_value || 0), 0);

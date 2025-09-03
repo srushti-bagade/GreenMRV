@@ -105,11 +105,21 @@ export function SatelliteVerificationDialog({
     setIsExporting(true);
     
     try {
+      // First, update the status to Verified when exporting certificate
+      const { error: updateError } = await supabase
+        .from('carbon_credits')
+        .update({
+          status: 'Verified'
+        })
+        .eq('id', creditData.id);
+
+      if (updateError) throw updateError;
+
       const exportData = {
         id: creditData.id,
         farmer: creditData.farmer,
         creditValue: creditData.creditValue,
-        status: verificationResult.isVerified ? 'Verified' : creditData.status,
+        status: 'Verified', // Always set to Verified when exporting certificate
         verificationDate: verificationResult.verificationDate,
         ndviValue: verificationResult.ndviData.value,
         satelliteSource: verificationResult.source,
@@ -120,9 +130,12 @@ export function SatelliteVerificationDialog({
       await PDFExportService.exportVerifiedCreditToPDF(exportData);
       
       toast({
-        title: "PDF Exported Successfully",
-        description: "Carbon credit certificate has been downloaded",
+        title: "Certificate Exported Successfully",
+        description: "Carbon credit certificate has been downloaded and credit status updated to Verified",
       });
+
+      // Trigger refresh of parent component
+      onVerificationComplete?.();
     } catch (error) {
       console.error('Export error:', error);
       toast({

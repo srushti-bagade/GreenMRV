@@ -22,118 +22,188 @@ export class PDFExportService {
   public static async exportVerifiedCreditToPDF(creditData: CarbonCreditExportData): Promise<void> {
     const pdf = new jsPDF();
     const pageWidth = pdf.internal.pageSize.width;
+    const pageHeight = pdf.internal.pageSize.height;
     const margin = 20;
-    let yPosition = margin;
+    let yPosition = margin + 10;
 
-    // Header with verification badge
-    pdf.setFontSize(20);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('VERIFIED CARBON CREDIT CERTIFICATE', pageWidth / 2, yPosition, { align: 'center' });
-    
-    yPosition += 15;
-
-    // Verification badge with improved spacing
-    if (creditData.status === 'Verified') {
-      pdf.setFillColor(34, 197, 94); // Green color for verified badge
-      pdf.roundedRect(pageWidth / 2 - 35, yPosition, 70, 16, 3, 3, 'F');
-      
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(12);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('✓ SATELLITE VERIFIED', pageWidth / 2, yPosition + 11, { align: 'center' });
-      
-      pdf.setTextColor(0, 0, 0);
-      yPosition += 30;
-    }
-
-    // Certificate ID
-    pdf.setFontSize(10);
+    // Set default font and size for consistency
     pdf.setFont('helvetica', 'normal');
-    pdf.text(`Certificate ID: ${creditData.id}`, pageWidth / 2, yPosition, { align: 'center' });
+    pdf.setFontSize(12);
+
+    // Header with verification badge - improved styling
+    pdf.setFontSize(22);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(34, 139, 34); // Forest green
+    pdf.text('VERIFIED CARBON CREDIT', pageWidth / 2, yPosition, { align: 'center' });
+    yPosition += 12;
+    
+    pdf.setFontSize(18);
+    pdf.setTextColor(0, 0, 0);
+    pdf.text('CERTIFICATE', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 20;
 
-    // Farmer Information Section with better spacing
-    pdf.setFontSize(16);
+    // Professional verification badge with improved design
+    if (creditData.status === 'Verified') {
+      // Badge background
+      pdf.setFillColor(34, 197, 94); // Green color
+      const badgeWidth = 80;
+      const badgeHeight = 18;
+      const badgeX = pageWidth / 2 - badgeWidth / 2;
+      pdf.roundedRect(badgeX, yPosition, badgeWidth, badgeHeight, 4, 4, 'F');
+      
+      // Badge border
+      pdf.setDrawColor(24, 165, 74);
+      pdf.setLineWidth(0.5);
+      pdf.roundedRect(badgeX, yPosition, badgeWidth, badgeHeight, 4, 4, 'S');
+      
+      // Badge text
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('✓ SATELLITE VERIFIED', pageWidth / 2, yPosition + 12, { align: 'center' });
+      
+      // Reset text color
+      pdf.setTextColor(0, 0, 0);
+      yPosition += 35;
+    }
+
+    // Certificate ID with better formatting
+    pdf.setFontSize(9);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setTextColor(128, 128, 128);
+    pdf.text(`Certificate ID: ${creditData.id.substring(0, 16)}...`, pageWidth / 2, yPosition, { align: 'center' });
+    pdf.setTextColor(0, 0, 0);
+    yPosition += 25;
+
+    // Farmer Information Section with improved layout
+    pdf.setFillColor(248, 250, 252); // Light gray background
+    pdf.rect(margin, yPosition - 5, pageWidth - 2 * margin, 65, 'F');
+    
+    pdf.setFontSize(14);
     pdf.setFont('helvetica', 'bold');
-    pdf.text('FARMER INFORMATION', margin, yPosition);
-    yPosition += 15;
+    pdf.setTextColor(30, 64, 175); // Blue color
+    pdf.text('FARMER INFORMATION', margin + 5, yPosition + 8);
+    
+    pdf.setTextColor(0, 0, 0);
+    yPosition += 20;
 
     pdf.setFontSize(11);
     pdf.setFont('helvetica', 'normal');
     
     const farmerInfo = [
-        `Name: ${creditData.farmer.name}`,
-        `Location: ${creditData.farmer.location}`,
-        `Crop Type: ${creditData.farmer.cropType}`,
-        `Land Area: ${creditData.farmer.landArea} acres`,
+        { label: 'Name:', value: creditData.farmer.name },
+        { label: 'Location:', value: creditData.farmer.location },
+        { label: 'Crop Type:', value: creditData.farmer.cropType },
+        { label: 'Land Area:', value: `${creditData.farmer.landArea} acres` },
     ];
 
     farmerInfo.forEach(info => {
-      pdf.text(info, margin + 5, yPosition);
-      yPosition += 10;
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(info.label, margin + 10, yPosition);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(info.value, margin + 45, yPosition);
+      yPosition += 12;
     });
 
-    yPosition += 15;
+    yPosition += 20;
 
-    // Carbon Credit Details with better spacing
-    pdf.setFontSize(16);
+    // Carbon Credit Details with enhanced formatting
+    pdf.setFillColor(240, 253, 244); // Light green background
+    pdf.rect(margin, yPosition - 5, pageWidth - 2 * margin, 70, 'F');
+    
+    pdf.setFontSize(14);
     pdf.setFont('helvetica', 'bold');
-    pdf.text('CARBON CREDIT DETAILS', margin, yPosition);
-    yPosition += 15;
+    pdf.setTextColor(22, 163, 74); // Green color
+    pdf.text('CARBON CREDIT DETAILS', margin + 5, yPosition + 8);
+    
+    pdf.setTextColor(0, 0, 0);
+    yPosition += 20;
 
     pdf.setFontSize(11);
     pdf.setFont('helvetica', 'normal');
     
     const creditInfo = [
-      `Credit Value: ${creditData.creditValue.toFixed(2)} tCO₂`,
-      `Status: ${creditData.status}`,
-      `Issue Date: ${new Date(creditData.createdAt).toLocaleDateString()}`,
+      { label: 'Credit Value:', value: `${creditData.creditValue.toFixed(2)} tCO₂`, highlight: true },
+      { label: 'Status:', value: creditData.status, highlight: false },
+      { label: 'Issue Date:', value: new Date(creditData.createdAt).toLocaleDateString(), highlight: false },
     ];
 
     if (creditData.verificationDate) {
-      creditInfo.push(`Verification Date: ${new Date(creditData.verificationDate).toLocaleDateString()}`);
+      creditInfo.push({ 
+        label: 'Verification Date:', 
+        value: new Date(creditData.verificationDate).toLocaleDateString(), 
+        highlight: false 
+      });
     }
 
     creditInfo.forEach(info => {
-      pdf.text(info, margin + 5, yPosition);
-      yPosition += 10;
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(info.label, margin + 10, yPosition);
+      
+      if (info.highlight) {
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(22, 163, 74);
+      } else {
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(0, 0, 0);
+      }
+      
+      pdf.text(info.value, margin + 55, yPosition);
+      pdf.setTextColor(0, 0, 0);
+      yPosition += 12;
     });
 
-    yPosition += 15;
+    yPosition += 20;
 
-    // Satellite Verification Details (if verified) with improved formatting
+    // Satellite Verification Details (if verified) with enhanced layout
     if (creditData.status === 'Verified' && creditData.ndviValue) {
-      pdf.setFontSize(16);
+      pdf.setFillColor(239, 246, 255); // Light blue background
+      pdf.rect(margin, yPosition - 5, pageWidth - 2 * margin, 75, 'F');
+      
+      pdf.setFontSize(14);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('SATELLITE VERIFICATION DETAILS', margin, yPosition);
-      yPosition += 15;
+      pdf.setTextColor(37, 99, 235); // Blue color
+      pdf.text('SATELLITE VERIFICATION DETAILS', margin + 5, yPosition + 8);
+      
+      pdf.setTextColor(0, 0, 0);
+      yPosition += 20;
 
       pdf.setFontSize(11);
       pdf.setFont('helvetica', 'normal');
       
       const verificationInfo = [
-        `Satellite Source: ${creditData.satelliteSource || 'Sentinel-2 ESA'}`,
-        `NDVI Value: ${creditData.ndviValue.toFixed(3)} (Vegetation Health)`,
-        `Verification Confidence: ${creditData.verificationConfidence || 95}%`,
-        `Verification Method: Multi-spectral Satellite Imagery Analysis`,
-        `Standards Compliance: Verified Carbon Standard (VCS)`,
+        { label: 'Satellite Source:', value: creditData.satelliteSource || 'Sentinel-2 ESA' },
+        { label: 'NDVI Value:', value: `${creditData.ndviValue.toFixed(3)} (Vegetation Health)` },
+        { label: 'Confidence:', value: `${creditData.verificationConfidence || 95}%` },
+        { label: 'Method:', value: 'Multi-spectral Satellite Imagery Analysis' },
+        { label: 'Standards:', value: 'Verified Carbon Standard (VCS)' },
       ];
 
       verificationInfo.forEach(info => {
-        pdf.text(info, margin + 5, yPosition);
-        yPosition += 10;
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(info.label, margin + 10, yPosition);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(info.value, margin + 60, yPosition);
+        yPosition += 12;
       });
 
-      yPosition += 15;
+      yPosition += 20;
     }
 
-    // Verification Methodology with better formatting
-    pdf.setFontSize(16);
+    // Verification Methodology with improved design
+    pdf.setFillColor(254, 249, 195); // Light yellow background
+    const methodologyHeight = 75;
+    pdf.rect(margin, yPosition - 5, pageWidth - 2 * margin, methodologyHeight, 'F');
+    
+    pdf.setFontSize(14);
     pdf.setFont('helvetica', 'bold');
-    pdf.text('VERIFICATION METHODOLOGY', margin, yPosition);
-    yPosition += 15;
+    pdf.setTextColor(180, 83, 9); // Orange color
+    pdf.text('VERIFICATION METHODOLOGY', margin + 5, yPosition + 8);
+    
+    pdf.setTextColor(0, 0, 0);
+    yPosition += 20;
 
-    pdf.setFontSize(11);
+    pdf.setFontSize(10);
     pdf.setFont('helvetica', 'normal');
     
     const methodology = [
@@ -145,30 +215,52 @@ export class PDFExportService {
     ];
 
     methodology.forEach(method => {
-      pdf.text(method, margin + 5, yPosition);
-      yPosition += 10;
+      // Split long lines if necessary
+      const lines = pdf.splitTextToSize(method, pageWidth - 2 * margin - 10);
+      lines.forEach((line: string) => {
+        pdf.text(line, margin + 10, yPosition);
+        yPosition += 10;
+      });
     });
 
-    yPosition += 20;
+    yPosition += 15;
 
-    // Footer with timestamp and authenticity
-    const footerY = pdf.internal.pageSize.height - 30;
-    pdf.setFontSize(10);
-    pdf.setFont('helvetica', 'italic');
+    // Professional footer with improved design
+    const footerY = pageHeight - 35;
+    
+    // Footer background
+    pdf.setFillColor(248, 250, 252);
+    pdf.rect(0, footerY - 15, pageWidth, 50, 'F');
+    
+    // Footer text
+    pdf.setFontSize(9);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setTextColor(75, 85, 99);
     pdf.text('This certificate is generated by GreenMRV Platform', pageWidth / 2, footerY, { align: 'center' });
-    pdf.text(`Generated on: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}`, pageWidth / 2, footerY + 10, { align: 'center' });
+    
+    const timestamp = `Generated on: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}`;
+    pdf.text(timestamp, pageWidth / 2, footerY + 8, { align: 'center' });
 
-    // Verification seal (if verified)
+    // Professional verification seal (if verified)
     if (creditData.status === 'Verified') {
-      pdf.setFillColor(34, 197, 94, 0.1);
-      pdf.circle(pageWidth - 40, footerY - 20, 25, 'F');
+      const sealX = pageWidth - 45;
+      const sealY = footerY - 25;
       
+      // Seal outer circle
+      pdf.setFillColor(34, 197, 94);
+      pdf.circle(sealX, sealY, 20, 'F');
+      
+      // Seal inner circle
+      pdf.setFillColor(255, 255, 255);
+      pdf.circle(sealX, sealY, 17, 'F');
+      
+      // Seal text
       pdf.setTextColor(34, 197, 94);
-      pdf.setFontSize(8);
+      pdf.setFontSize(7);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('SATELLITE', pageWidth - 40, footerY - 25, { align: 'center' });
-      pdf.text('VERIFICATION', pageWidth - 40, footerY - 18, { align: 'center' });
-      pdf.text('2025', pageWidth - 40, footerY - 11, { align: 'center' });
+      pdf.text('SATELLITE', sealX, sealY - 5, { align: 'center' });
+      pdf.text('VERIFIED', sealX, sealY + 2, { align: 'center' });
+      pdf.text('2025', sealX, sealY + 9, { align: 'center' });
     }
 
     // Save the PDF
