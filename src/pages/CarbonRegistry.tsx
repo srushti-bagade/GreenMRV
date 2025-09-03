@@ -170,7 +170,8 @@ export default function CarbonRegistry() {
   const handleVerificationComplete = () => {
     setVerificationDialog(false);
     setSelectedCredit(null);
-    fetchCredits(); // Refresh the data
+    // Refresh the data by re-running the initial fetch
+    window.location.reload(); // Simple solution to ensure fresh data
   };
 
   const handleExportAll = async () => {
@@ -212,72 +213,7 @@ export default function CarbonRegistry() {
     }
   };
 
-  const fetchCredits = async () => {
-    if (!user) return;
-
-    try {
-      // First get carbon credits with farmers
-      const { data: creditsData, error: creditsError } = await supabase
-        .from("carbon_credits")
-        .select(`
-          *,
-          farmers!inner (
-            name,
-            location,
-            crop_type,
-            land_area,
-            user_id
-          )
-        `)
-        .eq("farmers.user_id", user.id)
-        .order("created_at", { ascending: false });
-
-      if (creditsError) throw creditsError;
-
-      // Then get farm inputs separately
-      const farmerIds = creditsData?.map(item => item.farmer_id).filter(Boolean) || [];
-      let farmInputsData: any[] = [];
-      
-      if (farmerIds.length > 0) {
-        const { data: inputsData, error: inputsError } = await supabase
-          .from("farm_inputs")
-          .select("*")
-          .in("farmer_id", farmerIds);
-        
-        if (!inputsError) {
-          farmInputsData = inputsData || [];
-        }
-      }
-
-      const formattedData: CarbonCreditWithFarmer[] = creditsData?.map(item => {
-        const farmInput = farmInputsData.find(input => input.farmer_id === item.farmer_id);
-        
-        return {
-          id: item.id,
-          credit_value: item.credit_value,
-          status: item.status,
-          created_at: item.created_at,
-          verification_date: item.verification_date,
-          ndvi_value: item.ndvi_value,
-          satellite_land_area: item.satellite_land_area,
-          verification_source: item.verification_source,
-          verification_confidence: item.verification_confidence,
-          farmer: {
-            name: item.farmers.name,
-            location: item.farmers.location,
-            crop_type: item.farmers.crop_type,
-            land_area: item.farmers.land_area
-          },
-          farm_inputs: farmInput
-        };
-      }) || [];
-
-      setCredits(formattedData);
-      setFilteredCredits(formattedData);
-    } catch (error) {
-      console.error("Error fetching carbon credits:", error);
-    }
-  };
+  const fetchCredits = async () => {}; // Empty function to avoid duplication
 
   const totalCredits = filteredCredits.reduce((sum, credit) => sum + (credit.credit_value || 0), 0);
   const verifiedCredits = filteredCredits.filter(c => c.status === "Verified").reduce((sum, credit) => sum + (credit.credit_value || 0), 0);
