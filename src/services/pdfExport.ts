@@ -32,18 +32,18 @@ export class PDFExportService {
     
     yPosition += 15;
 
-    // Verification badge
+    // Verification badge with improved spacing
     if (creditData.status === 'Verified') {
       pdf.setFillColor(34, 197, 94); // Green color for verified badge
-      pdf.roundedRect(pageWidth / 2 - 30, yPosition, 60, 15, 3, 3, 'F');
+      pdf.roundedRect(pageWidth / 2 - 35, yPosition, 70, 16, 3, 3, 'F');
       
       pdf.setTextColor(255, 255, 255);
       pdf.setFontSize(12);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('✓ SATELLITE VERIFIED', pageWidth / 2, yPosition + 10, { align: 'center' });
+      pdf.text('✓ SATELLITE VERIFIED', pageWidth / 2, yPosition + 11, { align: 'center' });
       
       pdf.setTextColor(0, 0, 0);
-      yPosition += 25;
+      yPosition += 30;
     }
 
     // Certificate ID
@@ -52,11 +52,11 @@ export class PDFExportService {
     pdf.text(`Certificate ID: ${creditData.id}`, pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 20;
 
-    // Farmer Information Section
+    // Farmer Information Section with better spacing
     pdf.setFontSize(16);
     pdf.setFont('helvetica', 'bold');
     pdf.text('FARMER INFORMATION', margin, yPosition);
-    yPosition += 10;
+    yPosition += 15;
 
     pdf.setFontSize(11);
     pdf.setFont('helvetica', 'normal');
@@ -69,17 +69,17 @@ export class PDFExportService {
     ];
 
     farmerInfo.forEach(info => {
-      pdf.text(info, margin, yPosition);
-      yPosition += 8;
+      pdf.text(info, margin + 5, yPosition);
+      yPosition += 10;
     });
 
-    yPosition += 10;
+    yPosition += 15;
 
-    // Carbon Credit Details
+    // Carbon Credit Details with better spacing
     pdf.setFontSize(16);
     pdf.setFont('helvetica', 'bold');
     pdf.text('CARBON CREDIT DETAILS', margin, yPosition);
-    yPosition += 10;
+    yPosition += 15;
 
     pdf.setFontSize(11);
     pdf.setFont('helvetica', 'normal');
@@ -95,18 +95,18 @@ export class PDFExportService {
     }
 
     creditInfo.forEach(info => {
-      pdf.text(info, margin, yPosition);
-      yPosition += 8;
+      pdf.text(info, margin + 5, yPosition);
+      yPosition += 10;
     });
 
-    yPosition += 10;
+    yPosition += 15;
 
-    // Satellite Verification Details (if verified)
+    // Satellite Verification Details (if verified) with improved formatting
     if (creditData.status === 'Verified' && creditData.ndviValue) {
       pdf.setFontSize(16);
       pdf.setFont('helvetica', 'bold');
       pdf.text('SATELLITE VERIFICATION DETAILS', margin, yPosition);
-      yPosition += 10;
+      yPosition += 15;
 
       pdf.setFontSize(11);
       pdf.setFont('helvetica', 'normal');
@@ -120,18 +120,18 @@ export class PDFExportService {
       ];
 
       verificationInfo.forEach(info => {
-        pdf.text(info, margin, yPosition);
-        yPosition += 8;
+        pdf.text(info, margin + 5, yPosition);
+        yPosition += 10;
       });
 
-      yPosition += 10;
+      yPosition += 15;
     }
 
-    // Methodology Section
+    // Verification Methodology with better formatting
     pdf.setFontSize(16);
     pdf.setFont('helvetica', 'bold');
     pdf.text('VERIFICATION METHODOLOGY', margin, yPosition);
-    yPosition += 10;
+    yPosition += 15;
 
     pdf.setFontSize(11);
     pdf.setFont('helvetica', 'normal');
@@ -145,11 +145,11 @@ export class PDFExportService {
     ];
 
     methodology.forEach(method => {
-      pdf.text(method, margin, yPosition);
-      yPosition += 8;
+      pdf.text(method, margin + 5, yPosition);
+      yPosition += 10;
     });
 
-    yPosition += 15;
+    yPosition += 20;
 
     // Footer with timestamp and authenticity
     const footerY = pdf.internal.pageSize.height - 30;
@@ -167,7 +167,7 @@ export class PDFExportService {
       pdf.setFontSize(8);
       pdf.setFont('helvetica', 'bold');
       pdf.text('SATELLITE', pageWidth - 40, footerY - 25, { align: 'center' });
-      pdf.text('VERIFIED', pageWidth - 40, footerY - 18, { align: 'center' });
+      pdf.text('VERIFICATION', pageWidth - 40, footerY - 18, { align: 'center' });
       pdf.text('2025', pageWidth - 40, footerY - 11, { align: 'center' });
     }
 

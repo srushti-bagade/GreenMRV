@@ -91,6 +91,11 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Chatbot specific colors */
+    --chatbot-primary: 120 60% 30%;
+    --chatbot-secondary: 120 30% 95%;
+    --chatbot-accent: 100 60% 85%;
   }
 }
 

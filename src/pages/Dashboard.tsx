@@ -5,6 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Leaf, TrendingUp, Award, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { ChatbotWidget } from "@/components/ChatbotWidget";
 
 interface CarbonCredit {
   id: string;
@@ -244,6 +245,9 @@ export default function Dashboard() {
           )}
         </CardContent>
       </Card>
+      
+      {/* AI Chatbot Widget */}
+      <ChatbotWidget />
     </div>
   );
 }
