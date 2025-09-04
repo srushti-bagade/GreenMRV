@@ -342,7 +342,6 @@ export default function CarbonRegistry() {
                     <TableHead>Land Area</TableHead>
                     <TableHead>Credit Value</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Verification</TableHead>
                     <TableHead>Date</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
@@ -359,17 +358,6 @@ export default function CarbonRegistry() {
                       </TableCell>
                       <TableCell>
                         {getStatusBadge(credit.status, !!credit.verification_date)}
-                      </TableCell>
-                      <TableCell>
-                        {credit.verification_date && credit.ndvi_value ? (
-                          <div className="text-xs">
-                            <p className="font-mono">NDVI: {credit.ndvi_value.toFixed(3)}</p>
-                            <p className="text-muted-foreground">{credit.verification_source}</p>
-                            <p className="text-muted-foreground">{credit.verification_confidence}% confidence</p>
-                          </div>
-                        ) : (
-                          <span className="text-muted-foreground text-sm">Not verified</span>
-                        )}
                       </TableCell>
                       <TableCell>
                         {new Date(credit.created_at).toLocaleDateString()}

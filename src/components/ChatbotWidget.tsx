@@ -147,9 +147,6 @@ export function ChatbotWidget() {
               <h3 className="font-semibold">GreenMRV Assistant</h3>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="text-xs bg-primary-foreground/20 text-primary-foreground">
-                {selectedLanguage.toUpperCase()}
-              </Badge>
               <Button
                 variant="ghost"
                 size="sm"
