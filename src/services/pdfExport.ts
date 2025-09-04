@@ -158,7 +158,7 @@ export class PDFExportService {
     // Satellite Verification Details (if verification data exists) with enhanced layout
     if (creditData.ndviValue && (creditData.status === 'Verified' || creditData.verificationDate)) {
       pdf.setFillColor(239, 246, 255); // Light blue background
-      pdf.rect(margin, yPosition - 5, pageWidth - 2 * margin, 95, 'F');
+      pdf.rect(margin, yPosition - 5, pageWidth - 2 * margin, 105, 'F');
       
       pdf.setFontSize(14);
       pdf.setFont('helvetica', 'bold');
@@ -168,29 +168,29 @@ export class PDFExportService {
       pdf.setTextColor(0, 0, 0);
       yPosition += 20;
 
-      pdf.setFontSize(11);
+      pdf.setFontSize(10);
       pdf.setFont('helvetica', 'normal');
       
+      // Cap verification confidence at 99% for realism
+      const confidence = Math.min(creditData.verificationConfidence || 95, 99);
+      
       const verificationInfo = [
-        { label: 'Satellite Source:', value: creditData.satelliteSource || 'Sentinel-2 ESA (European Space Agency)' },
-        { label: 'NDVI Value:', value: `${creditData.ndviValue.toFixed(3)} (Normalized Difference Vegetation Index)` },
-        { label: 'Verification Confidence:', value: `${creditData.verificationConfidence || 95}% (High Accuracy)` },
+        { label: 'Satellite Source:', value: creditData.satelliteSource || 'Sentinel-2 ESA' },
+        { label: 'NDVI Value:', value: `${creditData.ndviValue.toFixed(3)} (Vegetation Health)` },
+        { label: 'Verification Confidence:', value: `${confidence}%` },
         { label: 'Verification Method:', value: 'Multi-spectral Satellite Imagery Analysis' },
-        { label: 'Verification Standards:', value: 'Verified Carbon Standard (VCS) & Gold Standard' },
-        { label: 'Resolution:', value: '10m/pixel (High Resolution)' },
-        { label: 'Spectral Bands Used:', value: 'Red, Near-Infrared (NIR), SWIR' },
-        { label: 'Processing Algorithm:', value: 'NDVI-Enhanced Carbon Assessment v2.1' },
+        { label: 'Standards Compliance:', value: 'Verified Carbon Standard (VCS)' },
       ];
 
       verificationInfo.forEach(info => {
         pdf.setFont('helvetica', 'bold');
         pdf.text(info.label, margin + 10, yPosition);
         pdf.setFont('helvetica', 'normal');
-        pdf.text(info.value, margin + 65, yPosition);
-        yPosition += 11;
+        pdf.text(info.value, margin + 70, yPosition);
+        yPosition += 12;
       });
 
-      yPosition += 20;
+      yPosition += 15;
     }
 
     // Verification Methodology with improved design
