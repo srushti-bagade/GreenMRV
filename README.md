@@ -1,73 +1,107 @@
-# Welcome to your Lovable project
+🌱 GreenMRV – Scalable Carbon Credit MRV Platform for Farmers
 
-## Project info
+GreenMRV is a farmer-friendly digital platform designed to simplify Monitoring, Reporting, and Verification (MRV) for carbon credits in agroforestry and rice cultivation projects.
 
-**URL**: https://lovable.dev/projects/1e97e1c8-771d-4741-adb9-473ab943e1a1
+The platform helps smallholder farmers register farms, track carbon credits, and export verified Carbon Credit Registry Certificates, while also enabling verifiers and policymakers to access transparent data.
 
-## How can I edit this code?
+🚀 Features
 
-There are several ways of editing your application.
+🔐 Authentication – Secure farmer sign-up/login via Supabase
 
-**Use Lovable**
+👩‍🌾 Farmer Registration – Capture farm details, land area, crops, and inputs
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/1e97e1c8-771d-4741-adb9-473ab943e1a1) and start prompting.
+📊 Dashboard with Charts – Visualize total credits, verified vs pending, and monthly carbon data
 
-Changes made via Lovable will be committed automatically to this repo.
+📑 Carbon Credit Registry – Track and verify carbon credits; export PDF certificates
 
-**Use your preferred IDE**
+🤖 Multilingual AI Chatbot – Supports English, Hindi, Kannada to guide farmers
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+🛰️ Mock Satellite Data Verification – Prototype feature validating farmer data (scalable to real GIS/RS APIs)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+🌐 Scalable Backend – Supabase (PostgreSQL + Auth + Storage)
 
-Follow these steps:
+📱 Responsive UI – Developed with Lovable.dev, React, Tailwind, shadcn-ui
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+🛠️ Technology Stack
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Frontend: Vite + React + TypeScript + Tailwind + shadcn-ui
 
-# Step 3: Install the necessary dependencies.
-npm i
+Backend: Supabase (PostgreSQL, Auth, Storage)
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+AI/ML: OpenAI API (multilingual chatbot)
+
+Data Layer: Mock satellite datasets for MRV verification
+
+Visualization: Chart libraries for credit trends
+
+PDF Generation: Automated Carbon Credit Registry certificates
+
+🌍 Key Innovations
+
+✅ Mock Satellite Data Integration – Demonstrates feasibility of GIS/remote sensing verification
+
+✅ Multilingual Chatbot – MRV guidance accessible in multiple Indian languages
+
+✅ Automated Certification – Direct export of verified carbon certificates
+
+✅ Low-cost & Scalable – Cloud-based architecture for affordability and scaling
+
+💻 Installation & Local Development
+# Clone the repository
+git clone https://github.com/<your-username>/GreenMRV.git
+cd GreenMRV
+
+# Install dependencies
+npm install
+
+# Start development server with auto-reloading
 npm run dev
-```
 
-**Edit a file directly in GitHub**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Make sure Node.js and npm are installed (can use nvm).
+Set up a .env file with Supabase & OpenAI credentials.
 
-**Use GitHub Codespaces**
+🔧 Editing Your Project
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+You can edit GreenMRV in several ways:
 
-## What technologies are used for this project?
+1️⃣ Using Lovable.dev
 
-This project is built with:
+Visit your Lovable Project
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Start prompting and changes are committed automatically
 
-## How can I deploy this project?
+2️⃣ Using IDE / Locally
 
-Simply open [Lovable](https://lovable.dev/projects/1e97e1c8-771d-4741-adb9-473ab943e1a1) and click on Share -> Publish.
+Clone the repo and push changes — updates sync with Lovable automatically
 
-## Can I connect a custom domain to my Lovable project?
+3️⃣ Directly in GitHub
 
-Yes, you can!
+Navigate to files → click the Edit (pencil) icon → commit changes
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+4️⃣ GitHub Codespaces
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Go to main repo page → Code → Codespaces → New codespace → edit and push changes
+
+
+👥 Team
+Driving sustainable impact: Team GreenMRV
+Srushti Bagade & Team
+
+📌 Future Scope
+
+Integration with real satellite/GIS APIs
+
+Onboarding IoT-based soil/land sensors
+
+Expansion to more Indian languages for chatbot
+
+Linking with national/global carbon credit registries
+
+📜 License
+
+MIT License – Open-source and available for community contributions
+
+✨ GreenMRV makes carbon markets accessible, affordable, and farmer-friendly.
+
+
