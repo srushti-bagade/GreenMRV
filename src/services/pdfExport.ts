@@ -155,8 +155,8 @@ export class PDFExportService {
 
     yPosition += 20;
 
-    // Satellite Verification Details (if verified) with enhanced layout
-    if (creditData.status === 'Verified' && creditData.ndviValue) {
+    // Satellite Verification Details (if verification data exists) with enhanced layout
+    if (creditData.ndviValue && (creditData.status === 'Verified' || creditData.verificationDate)) {
       pdf.setFillColor(239, 246, 255); // Light blue background
       pdf.rect(margin, yPosition - 5, pageWidth - 2 * margin, 95, 'F');
       

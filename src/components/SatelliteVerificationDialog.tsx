@@ -89,11 +89,14 @@ export function SatelliteVerificationDialog({
       onVerificationComplete?.();
     } catch (error) {
       console.error('Verification error:', error);
-      toast({
-        title: "Verification Failed",
-        description: "Unable to complete satellite verification. Please try again.",
-        variant: "destructive",
-      });
+      // Only show error if verification actually failed
+      if (!verificationResult) {
+        toast({
+          title: "Verification Failed",
+          description: "Unable to complete satellite verification. Please try again.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsVerifying(false);
     }
