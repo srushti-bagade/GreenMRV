@@ -87,7 +87,7 @@ You can edit GreenMRV in several ways:
 
 Cultivating solutions for a greener future **Team GreenMRV**
 
-* **Srushti Bagade** & Team
+[Srushti Bagade](https://github.com/srushti-bagade) & [Zoya Fathima](https://github.com/Zoya1207)
 
 ---
 
