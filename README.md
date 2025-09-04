@@ -19,6 +19,10 @@ The platform helps **smallholder farmers** register farms, track carbon credits,
 
 ---
 
+💻 Project preview: GreenMRV on Lovable
+
+---
+
 ## 🛠️ Technology Stack
 
 * **Frontend:** Vite + React + TypeScript + Tailwind + shadcn-ui
