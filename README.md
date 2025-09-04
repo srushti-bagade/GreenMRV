@@ -19,7 +19,7 @@ The platform helps **smallholder farmers** register farms, track carbon credits,
 
 ---
 
-💻 Project preview: GreenMRV on Lovable
+💻 Project preview: [GreenMRV on Lovable](https://lovable.dev/projects/1e97e1c8-771d-4741-adb9-473ab943e1a1)
 
 ---
 
