@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { FileText, Search, Filter, Satellite, Download, Eye } from "lucide-react";
+import { FileText, Search, Filter, Satellite, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { SatelliteVerificationDialog } from "@/components/SatelliteVerificationDialog";
@@ -153,17 +153,9 @@ export default function CarbonRegistry() {
     const config = statusMap[status as keyof typeof statusMap] || statusMap.Pending;
     
     return (
-      <div className="flex items-center gap-2">
-        <Badge variant={config.variant} className={config.color}>
-          {status}
-        </Badge>
-        {hasVerification && status === 'Verified' && (
-          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-            <Satellite className="h-3 w-3 mr-1" />
-            Satellite
-          </Badge>
-        )}
-      </div>
+      <Badge variant={config.variant} className={config.color}>
+        {status}
+      </Badge>
     );
   };
 
@@ -373,17 +365,8 @@ export default function CarbonRegistry() {
                             }}
                             className="flex items-center gap-1"
                           >
-                            {credit.verification_date ? (
-                              <>
-                                <Eye className="h-3 w-3" />
-                                View
-                              </>
-                            ) : (
-                              <>
-                                <Satellite className="h-3 w-3" />
-                                Verify
-                              </>
-                            )}
+                            <Satellite className="h-3 w-3" />
+                            Verify
                           </Button>
                         </div>
                       </TableCell>
